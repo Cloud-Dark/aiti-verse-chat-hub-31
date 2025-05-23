@@ -14,61 +14,65 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-4 px-4 py-4 group",
+        "flex w-full items-start gap-4 px-6 py-6 group transition-all duration-300",
         isUser ? "justify-end" : "justify-start",
-        "hover:bg-muted/30 transition-colors"
+        "hover:bg-muted/20"
       )}
     >
       {!isUser && (
         <Avatar className={cn(
-          "h-8 w-8 rounded-full border",
-          message.model === "aiti-pro" ? "bg-gradient-to-tr from-aiti-pro-light to-red-600" : "bg-gradient-to-tr from-aiti-light to-rose-400"
+          "h-10 w-10 rounded-full border-2 shadow-lg transition-all duration-300 group-hover:scale-110",
+          message.model === "aiti-pro" 
+            ? "bg-gradient-to-tr from-red-500 to-red-600 border-red-300" 
+            : "bg-gradient-to-tr from-primary to-rose-500 border-primary/30"
         )}>
-          <span className="font-bold text-white">
+          <span className="font-bold text-white text-sm">
             {message.model === "aiti" ? "AL" : "AC"}
           </span>
         </Avatar>
       )}
       
-      <div className="flex flex-col gap-2 max-w-[80%]">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 max-w-[75%]">
+        <div className="flex items-center gap-3">
           <span className={cn(
-            "text-sm font-medium",
-            message.model === "aiti-pro" && !isUser ? "text-aiti-pro-light" : 
-            message.model === "aiti" && !isUser ? "text-aiti-light" : ""
+            "text-sm font-semibold transition-colors duration-300",
+            message.model === "aiti-pro" && !isUser ? "text-red-500" : 
+            message.model === "aiti" && !isUser ? "text-primary" : "text-foreground"
           )}>
             {isUser ? "You" : message.model === "aiti" ? "AITI Lite" : "AITI Coder"}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
             {format(new Date(message.createdAt), "HH:mm")}
           </span>
         </div>
         
         <div
           className={cn(
-            "rounded-lg px-4 py-3 text-sm shadow-sm",
+            "rounded-2xl px-5 py-4 text-sm shadow-md transition-all duration-300 hover:shadow-lg",
             isUser 
-              ? "message-user bg-primary text-primary-foreground" 
+              ? "bg-gradient-to-tr from-primary to-rose-500 text-primary-foreground hover:scale-[1.02]" 
               : message.model === "aiti" 
-                ? "message-ai bg-muted" 
-                : "message-ai-pro bg-muted border-l-2 border-red-500",
-            "animate-fade-in transition-all duration-200"
+                ? "bg-muted/80 backdrop-blur-sm border border-border/50 hover:bg-muted" 
+                : "bg-muted/80 backdrop-blur-sm border-l-4 border-red-500 border-r border-t border-b border-border/50 hover:bg-muted",
+            "animate-fade-in"
           )}
         >
-          {message.content}
+          <div className="whitespace-pre-wrap">{message.content}</div>
           {message.isStreaming && (
-            <div className="typing-indicator mt-1">
-              <span className="animate-blink"></span>
-              <span className="animate-blink animation-delay-300"></span>
-              <span className="animate-blink animation-delay-600"></span>
+            <div className="flex items-center gap-1 mt-3">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
             </div>
           )}
         </div>
       </div>
       
       {isUser && (
-        <Avatar className="h-8 w-8 rounded-full border bg-gradient-to-tr from-primary to-red-400">
-          <span className="font-bold text-white">You</span>
+        <Avatar className="h-10 w-10 rounded-full border-2 shadow-lg bg-gradient-to-tr from-blue-500 to-purple-600 border-blue-300 transition-all duration-300 group-hover:scale-110">
+          <span className="font-bold text-white text-sm">You</span>
         </Avatar>
       )}
     </div>
