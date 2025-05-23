@@ -1,17 +1,31 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Settings } from "@/components/Settings";
 
 export function Header() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showSettings, setShowSettings] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
   
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const toggleTheme = () => {
+    const newThemeValue = !isDarkTheme;
+    setIsDarkTheme(newThemeValue);
+    
+    if (newThemeValue) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   };
+  
+  const initials = user?.name 
+    ? user.name.split(" ").map(n => n[0]).join("").toUpperCase() 
+    : user?.email?.substring(0, 2).toUpperCase() || "U";
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -24,12 +38,28 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end space-x-4">
           {user && (
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground hidden sm:inline-block">
                 {user.email}
               </span>
-              <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
-                <LogOut className="h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full" 
+                onClick={() => setShowSettings(true)}
+              >
+                <Avatar className="h-8 w-8 border">
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
               </Button>
+              
+              <Settings
+                open={showSettings}
+                onOpenChange={setShowSettings}
+                onToggleTheme={toggleTheme}
+                isDarkTheme={isDarkTheme}
+              />
             </div>
           )}
         </div>

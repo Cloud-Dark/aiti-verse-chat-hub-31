@@ -12,28 +12,54 @@ export interface Message {
   isStreaming?: boolean;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+}
+
 interface ChatContextType {
   messages: Message[];
+  conversations: Conversation[];
   selectedModel: ModelType;
   isLoading: boolean;
+  activeConversationId: string | null;
   setSelectedModel: (model: ModelType) => void;
   sendMessage: (content: string) => Promise<void>;
   clearChat: () => void;
+  selectConversation: (id: string) => void;
+  deleteConversation: (id: string) => void;
+  clearAllHistory: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedModel, setSelectedModel] = useState<ModelType>("aiti");
   const [isLoading, setIsLoading] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
-  // This is a mock function to simulate sending a message and getting a response
-  // In a real application, you would call your API here
+  // Helper to create a new conversation
+  const createNewConversation = (initialMessage?: Message) => {
+    const newConversation: Conversation = {
+      id: Date.now().toString(),
+      title: initialMessage?.content.slice(0, 30) || "New conversation",
+      messages: initialMessage ? [initialMessage] : [],
+      createdAt: new Date()
+    };
+
+    setConversations(prev => [newConversation, ...prev]);
+    setActiveConversationId(newConversation.id);
+    return newConversation.id;
+  };
+
+  // Function to send a message
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
     
-    // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       content,
@@ -42,7 +68,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       createdAt: new Date(),
     };
     
-    setMessages((prev) => [...prev, userMessage]);
+    let convId = activeConversationId;
+    // If no active conversation, create one
+    if (!activeConversationId) {
+      convId = createNewConversation(userMessage);
+    } else {
+      // Add to existing conversation
+      setConversations(prev => 
+        prev.map(conv => 
+          conv.id === activeConversationId 
+            ? { ...conv, messages: [...conv.messages, userMessage] } 
+            : conv
+        )
+      );
+    }
+    
+    setMessages(prev => [...prev, userMessage]);
     
     // Start AI response with streaming simulation
     const aiMessageId = (Date.now() + 1).toString();
@@ -55,7 +96,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       isStreaming: true,
     };
     
-    setMessages((prev) => [...prev, aiMessage]);
+    setMessages(prev => [...prev, aiMessage]);
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === convId 
+          ? { ...conv, messages: [...conv.messages, aiMessage] } 
+          : conv
+      )
+    );
+    
     setIsLoading(true);
     
     // Simulate streaming response
@@ -77,16 +126,48 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         )
       );
       
+      // Also update in the conversations
+      setConversations(prev => 
+        prev.map(conv => 
+          conv.id === convId 
+            ? { 
+                ...conv, 
+                messages: conv.messages.map(msg => 
+                  msg.id === aiMessageId 
+                    ? { ...msg, content: displayedResponse } 
+                    : msg
+                ) 
+              } 
+            : conv
+        )
+      );
+      
       // Wait a small amount of time to simulate typing
       await new Promise((resolve) => setTimeout(resolve, 30));
     }
     
     // Complete the AI message
-    setMessages((prev) => 
-      prev.map((msg) => 
+    setMessages(prev => 
+      prev.map(msg => 
         msg.id === aiMessageId 
           ? { ...msg, isStreaming: false } 
           : msg
+      )
+    );
+    
+    // Also update in the conversations
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === convId 
+          ? { 
+              ...conv, 
+              messages: conv.messages.map(msg => 
+                msg.id === aiMessageId 
+                  ? { ...msg, isStreaming: false } 
+                  : msg
+              ) 
+            } 
+          : conv
       )
     );
     
@@ -95,17 +176,48 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const clearChat = () => {
     setMessages([]);
+    if (activeConversationId) {
+      createNewConversation();
+    }
+  };
+
+  const selectConversation = (id: string) => {
+    const conversation = conversations.find(conv => conv.id === id);
+    if (conversation) {
+      setActiveConversationId(id);
+      setMessages(conversation.messages);
+    }
+  };
+
+  const deleteConversation = (id: string) => {
+    setConversations(prev => prev.filter(conv => conv.id !== id));
+    
+    if (activeConversationId === id) {
+      setActiveConversationId(null);
+      setMessages([]);
+    }
+  };
+
+  const clearAllHistory = () => {
+    setConversations([]);
+    setActiveConversationId(null);
+    setMessages([]);
   };
 
   return (
     <ChatContext.Provider 
       value={{ 
         messages, 
+        conversations,
         selectedModel, 
         isLoading,
+        activeConversationId,
         setSelectedModel, 
         sendMessage,
-        clearChat
+        clearChat,
+        selectConversation,
+        deleteConversation,
+        clearAllHistory
       }}
     >
       {children}

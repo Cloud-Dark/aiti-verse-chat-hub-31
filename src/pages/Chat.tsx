@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useChat } from "@/context/ChatContext";
@@ -7,11 +7,25 @@ import { Header } from "@/components/Header";
 import { ChatContainer } from "@/components/ChatContainer";
 import { ChatInput } from "@/components/ChatInput";
 import { ModelSelector } from "@/components/ModelSelector";
+import { ChatHistory } from "@/components/ChatHistory";
 
 const Chat = () => {
   const { isAuthenticated } = useAuth();
-  const { messages, selectedModel, isLoading, setSelectedModel, sendMessage, clearChat } = useChat();
+  const { 
+    messages, 
+    conversations,
+    selectedModel, 
+    isLoading, 
+    activeConversationId,
+    setSelectedModel, 
+    sendMessage, 
+    clearChat,
+    selectConversation,
+    deleteConversation,
+    clearAllHistory
+  } = useChat();
   const navigate = useNavigate();
+  const [showHistory, setShowHistory] = useState(true);
   
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,8 +42,34 @@ const Chat = () => {
       <Header />
       
       <div className="flex flex-1 overflow-hidden">
+        {/* Chat History */}
+        <div className="hidden md:block">
+          <ChatHistory 
+            isVisible={showHistory}
+            toggleVisibility={() => setShowHistory(!showHistory)}
+            conversations={conversations}
+            onSelectConversation={selectConversation}
+            onDeleteConversation={deleteConversation}
+            activeConversationId={activeConversationId}
+            onClearAllHistory={clearAllHistory}
+          />
+        </div>
+        
+        {/* Mobile Chat History Toggle */}
+        <div className="md:hidden">
+          <ChatHistory 
+            isVisible={showHistory}
+            toggleVisibility={() => setShowHistory(!showHistory)}
+            conversations={conversations}
+            onSelectConversation={selectConversation}
+            onDeleteConversation={deleteConversation}
+            activeConversationId={activeConversationId}
+            onClearAllHistory={clearAllHistory}
+          />
+        </div>
+        
         {/* Sidebar */}
-        <aside className="w-[280px] border-r bg-background hidden md:block">
+        <aside className={`w-[280px] border-r bg-background ${showHistory ? 'hidden' : ''} md:block`}>
           <div className="h-full flex flex-col">
             <ModelSelector 
               selectedModel={selectedModel} 
@@ -59,7 +99,7 @@ const Chat = () => {
         </aside>
         
         {/* Main content */}
-        <main className="flex-1 flex flex-col">
+        <main className={`flex-1 flex flex-col ${showHistory ? 'md:ml-0' : ''}`}>
           {/* Chat messages */}
           <div className="flex-1 overflow-hidden">
             <ChatContainer 
