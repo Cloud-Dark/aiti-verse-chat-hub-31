@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,8 +54,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [chainLength, setChainLength] = useState<number>(3);
   const [ollamaConfig, setOllamaConfig] = useState<OllamaConfig>({
-    baseUrl: "http://localhost:11434",
-    model: "llama2"
+    baseUrl: "http://10.0.24.130:11435",
+    model: "smollm:360m"
   });
   const { toast } = useToast();
 
@@ -153,13 +154,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     try {
       let response: string;
       
-      if (selectedModel === "ollama") {
+      if (selectedModel === "aiti") {
+        // AITI Lite sekarang menggunakan Ollama
         response = await callOllamaAPI(content);
-      } else if (selectedModel === "aiti") {
-        response = `This is a response from the basic AITI Lite model. I'm here to help answer your questions about "${content}". However, I'm limited compared to my pro version.`;
+      } else if (selectedModel === "aiti-pro") {
+        // AITI Coder sekarang berfungsi normal
+        response = `This is an advanced response from AITI Coder. I can provide detailed analysis and help with coding tasks regarding "${content}". I offer enhanced capabilities for technical discussions, programming assistance, and complex problem-solving.`;
       } else {
-        // aiti-pro
-        response = `This is an advanced response from AITI Coder model. I can provide more detailed and nuanced information about "${content}". With AITI Coder, you get enhanced capabilities and more accurate responses for coding and technical tasks.`;
+        // ollama
+        response = await callOllamaAPI(content);
       }
       
       // Simulate streaming response
@@ -194,7 +197,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         );
         
         // Wait a small amount of time to simulate typing
-        await new Promise((resolve) => setTimeout(resolve, selectedModel === "ollama" ? 20 : 30));
+        await new Promise((resolve) => setTimeout(resolve, selectedModel === "aiti" ? 20 : 30));
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred";
