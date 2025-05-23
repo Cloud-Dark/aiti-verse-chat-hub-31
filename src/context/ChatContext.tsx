@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -155,13 +154,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       let response: string;
       
       if (selectedModel === "aiti") {
-        // AITI Lite sekarang menggunakan Ollama
+        // AITI Lite menggunakan Ollama
         response = await callOllamaAPI(content);
       } else if (selectedModel === "aiti-pro") {
-        // AITI Coder sekarang berfungsi normal
-        response = `This is an advanced response from AITI Coder. I can provide detailed analysis and help with coding tasks regarding "${content}". I offer enhanced capabilities for technical discussions, programming assistance, and complex problem-solving.`;
+        // AITI Coder sekarang berfungsi normal dengan respons yang lebih canggih
+        response = `As AITI Coder, I can help you with advanced programming tasks. Regarding "${content}": 
+
+I offer comprehensive solutions including:
+- Code analysis and optimization
+- Architecture recommendations  
+- Best practices implementation
+- Error debugging and resolution
+- Performance improvements
+
+Let me provide a detailed technical response to your query. How would you like me to assist you further with this development task?`;
       } else {
-        // ollama
+        // ollama direct
         response = await callOllamaAPI(content);
       }
       

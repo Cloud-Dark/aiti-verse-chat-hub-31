@@ -29,6 +29,32 @@ export function Header() {
   const initials = user?.name 
     ? user.name.split(" ").map(n => n[0]).join("").toUpperCase() 
     : user?.email?.substring(0, 2).toUpperCase() || "U";
+
+  const getModelDisplayName = () => {
+    switch (selectedModel) {
+      case "aiti":
+        return "AITI Lite";
+      case "aiti-pro":
+        return "AITI Coder";
+      case "ollama":
+        return "Ollama";
+      default:
+        return "AI Model";
+    }
+  };
+
+  const getModelColor = () => {
+    switch (selectedModel) {
+      case "aiti":
+        return "bg-aiti-light/20 text-aiti-light";
+      case "aiti-pro":
+        return "bg-red-500/20 text-red-500";
+      case "ollama":
+        return "bg-green-500/20 text-green-500";
+      default:
+        return "bg-gray-500/20 text-gray-500";
+    }
+  };
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur shadow-sm">
@@ -46,11 +72,9 @@ export function Header() {
               </span>
               <span className={cn(
                 "text-xs px-2 py-1 rounded-full hidden sm:inline-block",
-                selectedModel === "aiti" 
-                  ? "bg-aiti-light/20 text-aiti-light" 
-                  : "bg-aiti-pro-light/20 text-aiti-pro-light"
+                getModelColor()
               )}>
-                {selectedModel === "aiti" ? "AITI Lite" : "AITI Coder"}
+                {getModelDisplayName()}
               </span>
               <Button 
                 variant="ghost" 
