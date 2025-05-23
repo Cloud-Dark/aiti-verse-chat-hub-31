@@ -13,7 +13,6 @@ import {
   SidebarTrigger
 } from "@/components/ui/sidebar";
 import { ChatHistory } from "@/components/ChatHistory";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -67,7 +66,7 @@ const Chat = () => {
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden relative">
             <div className="absolute top-3 left-3 z-10">
-              <SidebarTrigger asChild>
+              <SidebarTrigger>
                 <Button 
                   variant="ghost" 
                   size="icon" 
