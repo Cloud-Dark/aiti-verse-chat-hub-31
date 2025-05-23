@@ -29,7 +29,7 @@ interface SettingsProps {
 }
 
 export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: SettingsProps) {
-  const { selectedModel, setSelectedModel, clearChat } = useChat();
+  const { selectedModel, setSelectedModel, clearChat, clearAllHistory } = useChat();
   const { logout } = useAuth();
   const navigate = useNavigate();
   
@@ -40,6 +40,11 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
 
   const handleClearAllChats = () => {
     clearChat();
+    onOpenChange(false);
+  };
+  
+  const handleClearAllHistory = () => {
+    clearAllHistory();
     onOpenChange(false);
   };
 
@@ -87,6 +92,11 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
                 />
               </div>
             </div>
+            
+            <div className="text-xs text-muted-foreground mt-2">
+              <p><strong>AITI:</strong> Fast responses for everyday questions</p>
+              <p><strong>AITI Pro:</strong> Advanced capabilities for complex tasks</p>
+            </div>
           </div>
           
           <div className="space-y-4">
@@ -112,7 +122,16 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
               onClick={handleClearAllChats}
             >
               <Trash2 className="h-4 w-4" />
-              Clear All Chats
+              Clear Current Chat
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full flex items-center gap-2 text-destructive hover:text-destructive"
+              onClick={handleClearAllHistory}
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear All History
             </Button>
           </div>
         </div>

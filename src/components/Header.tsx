@@ -2,11 +2,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { useChat } from "@/context/ChatContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Settings } from "@/components/Settings";
 
 export function Header() {
   const { user } = useAuth();
+  const { selectedModel } = useChat();
   const [showSettings, setShowSettings] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(
     window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -40,6 +42,9 @@ export function Header() {
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground hidden sm:inline-block">
                 {user.email}
+              </span>
+              <span className="text-xs px-2 py-1 bg-primary/10 rounded-full hidden sm:inline-block">
+                {selectedModel === "aiti" ? "AITI" : "AITI Pro"}
               </span>
               <Button 
                 variant="ghost" 
