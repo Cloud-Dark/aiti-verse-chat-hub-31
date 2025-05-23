@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
 import { ModelType } from "@/context/ChatContext";
@@ -18,7 +19,8 @@ import {
   Moon,
   Sun,
   Trash2, 
-  LogOut
+  LogOut,
+  Share2
 } from "lucide-react";
 
 interface SettingsProps {
@@ -29,7 +31,7 @@ interface SettingsProps {
 }
 
 export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: SettingsProps) {
-  const { selectedModel, setSelectedModel, clearChat, clearAllHistory } = useChat();
+  const { selectedModel, setSelectedModel, clearChat, clearAllHistory, chainLength, setChainLength } = useChat();
   const { logout } = useAuth();
   const navigate = useNavigate();
   
@@ -50,7 +52,7 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Settings</SheetTitle>
           <SheetDescription>
@@ -58,7 +60,7 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
           </SheetDescription>
         </SheetHeader>
 
-        <div className="py-4 space-y-6">
+        <div className="py-6 space-y-6">
           <div className="space-y-4">
             <h3 className="text-sm font-medium">AI Model</h3>
             <div className="space-y-3">
@@ -96,6 +98,27 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
             <div className="text-xs text-muted-foreground mt-2">
               <p><strong>AITI Lite:</strong> Fast responses for everyday questions</p>
               <p><strong>AITI Coder:</strong> Advanced programming and technical capabilities</p>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Chain Length</h3>
+            <div className="px-2">
+              <Slider
+                defaultValue={[chainLength]}
+                max={10}
+                min={1}
+                step={1}
+                onValueChange={(value) => setChainLength(value[0])}
+              />
+              <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                <span>1</span>
+                <span>Current: {chainLength}</span>
+                <span>10</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Control how many previous messages are included in the context when generating responses.
+              </p>
             </div>
           </div>
           

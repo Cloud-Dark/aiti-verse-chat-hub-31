@@ -13,6 +13,9 @@ import {
   SidebarTrigger
 } from "@/components/ui/sidebar";
 import { ChatHistory } from "@/components/ChatHistory";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Chat = () => {
   const { isAuthenticated } = useAuth();
@@ -26,7 +29,8 @@ const Chat = () => {
     clearChat,
     selectConversation,
     deleteConversation,
-    clearAllHistory
+    clearAllHistory,
+    shareConversation
   } = useChat();
   const navigate = useNavigate();
   
@@ -41,20 +45,21 @@ const Chat = () => {
   }
   
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex flex-col min-h-screen w-full bg-background">
         <Header />
         
         <div className="flex flex-1 w-full overflow-hidden">
           {/* Sidebar with Chat History */}
           <Sidebar variant="sidebar" collapsible="offcanvas">
-            <SidebarContent>
+            <SidebarContent className="animate-slide-in-left">
               <ChatHistory 
                 conversations={conversations}
                 onSelectConversation={selectConversation}
                 onDeleteConversation={deleteConversation}
                 activeConversationId={activeConversationId}
                 onClearAllHistory={clearAllHistory}
+                onShareConversation={shareConversation}
               />
             </SidebarContent>
           </Sidebar>
@@ -62,7 +67,16 @@ const Chat = () => {
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden relative">
             <div className="absolute top-3 left-3 z-10">
-              <SidebarTrigger />
+              <SidebarTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="transition-transform hover:rotate-90 duration-200"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle history</span>
+                </Button>
+              </SidebarTrigger>
             </div>
             
             {/* Chat messages */}
@@ -75,7 +89,7 @@ const Chat = () => {
             </div>
             
             {/* Input area */}
-            <div className="border-t p-4">
+            <div className="border-t p-4 bg-gradient-to-b from-transparent to-background/30 backdrop-blur-sm">
               <ChatInput onSend={sendMessage} disabled={isLoading} />
               
               {/* Current model indicator */}

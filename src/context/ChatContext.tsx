@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export type ModelType = "aiti" | "aiti-pro";
 
@@ -25,12 +26,15 @@ interface ChatContextType {
   selectedModel: ModelType;
   isLoading: boolean;
   activeConversationId: string | null;
+  chainLength: number;
+  setChainLength: (length: number) => void;
   setSelectedModel: (model: ModelType) => void;
   sendMessage: (content: string) => Promise<void>;
   clearChat: () => void;
   selectConversation: (id: string) => void;
   deleteConversation: (id: string) => void;
   clearAllHistory: () => void;
+  shareConversation: (id: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -41,6 +45,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [selectedModel, setSelectedModel] = useState<ModelType>("aiti");
   const [isLoading, setIsLoading] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [chainLength, setChainLength] = useState<number>(3);
+  const { toast } = useToast();
 
   // Helper to create a new conversation
   const createNewConversation = (initialMessage?: Message) => {
@@ -203,6 +209,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setActiveConversationId(null);
     setMessages([]);
   };
+  
+  const shareConversation = (id: string) => {
+    const conversation = conversations.find(conv => conv.id === id);
+    if (!conversation) return;
+    
+    const text = conversation.messages
+      .map(m => `${m.role === 'user' ? 'You' : m.model === 'aiti' ? 'AITI Lite' : 'AITI Coder'}: ${m.content}`)
+      .join('\n\n');
+    
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Conversation shared",
+        description: "The conversation has been copied to your clipboard"
+      });
+    });
+  };
 
   return (
     <ChatContext.Provider 
@@ -212,12 +234,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         selectedModel, 
         isLoading,
         activeConversationId,
+        chainLength,
+        setChainLength,
         setSelectedModel, 
         sendMessage,
         clearChat,
         selectConversation,
         deleteConversation,
-        clearAllHistory
+        clearAllHistory,
+        shareConversation
       }}
     >
       {children}

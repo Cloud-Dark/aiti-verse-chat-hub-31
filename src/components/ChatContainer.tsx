@@ -26,12 +26,12 @@ export function ChatContainer({ messages, onClearChat, isLoading }: ChatContaine
     <div className="flex-1 overflow-y-auto">
       {messages.length > 0 ? (
         <>
-          <div className="flex justify-between items-center p-4 sticky top-0 bg-background/80 backdrop-blur-sm z-10 border-b">
-            <h2 className="font-medium">Conversation</h2>
+          <div className="flex justify-between items-center p-4 sticky top-0 bg-background/95 backdrop-blur-sm z-10 shadow-sm">
+            <h2 className="font-medium text-primary">Conversation</h2>
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2"
+              className="h-8 px-2 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
               onClick={onClearChat}
               disabled={isLoading}
             >
@@ -39,7 +39,7 @@ export function ChatContainer({ messages, onClearChat, isLoading }: ChatContaine
               Clear chat
             </Button>
           </div>
-          <div className="pb-4">
+          <div className="pb-16">
             {messages.map((message) => (
               <MessageBubble key={message.id} message={message} />
             ))}
@@ -47,15 +47,16 @@ export function ChatContainer({ messages, onClearChat, isLoading }: ChatContaine
           </div>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-          <div className="rounded-full bg-primary/10 p-4 mb-4">
-            <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-              <span className="text-2xl font-bold gradient-text">AI</span>
+        <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in">
+          <div className="rounded-full bg-primary/10 p-4 mb-4 shadow-inner">
+            <div className="h-14 w-14 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-2xl font-bold text-primary">AI</span>
             </div>
           </div>
-          <h3 className="text-xl font-bold mb-2">Welcome to AITI Chat</h3>
+          <h3 className="text-xl font-bold mb-2 text-primary">Welcome to AITI Chat</h3>
           <p className="text-muted-foreground text-sm max-w-md">
-            Start a conversation with our AI assistant. Choose between our standard AITI model or the advanced AITI Pro for more complex queries.
+            Start a conversation with our AI assistant. Choose between our standard AITI Lite model 
+            or the advanced AITI Coder for more complex queries.
           </p>
         </div>
       )}

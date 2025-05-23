@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useChat } from "@/context/ChatContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Settings } from "@/components/Settings";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const { user } = useAuth();
@@ -30,11 +31,11 @@ export function Header() {
     : user?.email?.substring(0, 2).toUpperCase() || "U";
   
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur shadow-sm">
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex">
           <a href="/chat" className="flex items-center space-x-2">
-            <span className="text-xl font-bold gradient-text">AITI Chat</span>
+            <span className="text-xl font-bold text-primary">AITI Chat</span>
           </a>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
@@ -43,13 +44,18 @@ export function Header() {
               <span className="text-sm text-muted-foreground hidden sm:inline-block">
                 {user.email}
               </span>
-              <span className="text-xs px-2 py-1 bg-primary/10 rounded-full hidden sm:inline-block">
+              <span className={cn(
+                "text-xs px-2 py-1 rounded-full hidden sm:inline-block",
+                selectedModel === "aiti" 
+                  ? "bg-aiti-light/20 text-aiti-light" 
+                  : "bg-aiti-pro-light/20 text-aiti-pro-light"
+              )}>
                 {selectedModel === "aiti" ? "AITI Lite" : "AITI Coder"}
               </span>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="rounded-full" 
+                className="rounded-full hover:bg-primary/10 transition-all" 
                 onClick={() => setShowSettings(true)}
               >
                 <Avatar className="h-8 w-8 border">
