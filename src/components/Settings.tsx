@@ -68,7 +68,7 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
                   className="flex items-center gap-2 text-sm cursor-pointer"
                 >
                   <div className={`w-3 h-3 rounded-full ${selectedModel === "aiti" ? "bg-primary" : "bg-gray-300"}`}></div>
-                  AITI
+                  AITI Lite
                 </label>
                 <Switch 
                   id="aiti-model" 
@@ -83,7 +83,7 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
                   className="flex items-center gap-2 text-sm cursor-pointer"
                 >
                   <div className={`w-3 h-3 rounded-full ${selectedModel === "aiti-pro" ? "bg-primary" : "bg-gray-300"}`}></div>
-                  AITI Pro
+                  AITI Coder
                 </label>
                 <Switch 
                   id="aiti-pro-model" 
@@ -94,8 +94,8 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
             </div>
             
             <div className="text-xs text-muted-foreground mt-2">
-              <p><strong>AITI:</strong> Fast responses for everyday questions</p>
-              <p><strong>AITI Pro:</strong> Advanced capabilities for complex tasks</p>
+              <p><strong>AITI Lite:</strong> Fast responses for everyday questions</p>
+              <p><strong>AITI Coder:</strong> Advanced programming and technical capabilities</p>
             </div>
           </div>
           

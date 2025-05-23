@@ -44,7 +44,7 @@ export function Header() {
                 {user.email}
               </span>
               <span className="text-xs px-2 py-1 bg-primary/10 rounded-full hidden sm:inline-block">
-                {selectedModel === "aiti" ? "AITI" : "AITI Pro"}
+                {selectedModel === "aiti" ? "AITI Lite" : "AITI Coder"}
               </span>
               <Button 
                 variant="ghost" 

@@ -24,7 +24,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           message.model === "aiti-pro" ? "bg-aiti-pro-light" : "bg-aiti-light"
         )}>
           <span className="font-bold text-white">
-            {message.model === "aiti" ? "A" : "AP"}
+            {message.model === "aiti" ? "AL" : "AC"}
           </span>
         </Avatar>
       )}
@@ -32,7 +32,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       <div className="flex flex-col gap-2 max-w-[80%]">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">
-            {isUser ? "You" : message.model === "aiti" ? "AITI" : "AITI Pro"}
+            {isUser ? "You" : message.model === "aiti" ? "AITI Lite" : "AITI Coder"}
           </span>
           <span className="text-xs text-muted-foreground">
             {format(new Date(message.createdAt), "HH:mm")}

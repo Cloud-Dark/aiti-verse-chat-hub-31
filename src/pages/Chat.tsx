@@ -1,11 +1,17 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useChat } from "@/context/ChatContext";
 import { Header } from "@/components/Header";
 import { ChatContainer } from "@/components/ChatContainer";
 import { ChatInput } from "@/components/ChatInput";
+import { 
+  SidebarProvider, 
+  Sidebar, 
+  SidebarContent, 
+  SidebarTrigger
+} from "@/components/ui/sidebar";
 import { ChatHistory } from "@/components/ChatHistory";
 
 const Chat = () => {
@@ -23,7 +29,6 @@ const Chat = () => {
     clearAllHistory
   } = useChat();
   const navigate = useNavigate();
-  const [showHistory, setShowHistory] = useState(true);
   
   useEffect(() => {
     if (!isAuthenticated) {
@@ -36,61 +41,54 @@ const Chat = () => {
   }
   
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      
-      <div className="flex flex-1 overflow-hidden">
-        {/* Chat History */}
-        <div className="hidden md:block">
-          <ChatHistory 
-            isVisible={showHistory}
-            toggleVisibility={() => setShowHistory(!showHistory)}
-            conversations={conversations}
-            onSelectConversation={selectConversation}
-            onDeleteConversation={deleteConversation}
-            activeConversationId={activeConversationId}
-            onClearAllHistory={clearAllHistory}
-          />
-        </div>
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex flex-col min-h-screen w-full bg-background">
+        <Header />
         
-        {/* Mobile Chat History Toggle */}
-        <div className="md:hidden">
-          <ChatHistory 
-            isVisible={showHistory}
-            toggleVisibility={() => setShowHistory(!showHistory)}
-            conversations={conversations}
-            onSelectConversation={selectConversation}
-            onDeleteConversation={deleteConversation}
-            activeConversationId={activeConversationId}
-            onClearAllHistory={clearAllHistory}
-          />
-        </div>
-        
-        {/* Main content */}
-        <main className="flex-1 flex flex-col">
-          {/* Chat messages */}
-          <div className="flex-1 overflow-hidden">
-            <ChatContainer 
-              messages={messages}
-              onClearChat={clearChat}
-              isLoading={isLoading}
-            />
-          </div>
+        <div className="flex flex-1 w-full overflow-hidden">
+          {/* Sidebar with Chat History */}
+          <Sidebar variant="sidebar" collapsible="offcanvas">
+            <SidebarContent>
+              <ChatHistory 
+                conversations={conversations}
+                onSelectConversation={selectConversation}
+                onDeleteConversation={deleteConversation}
+                activeConversationId={activeConversationId}
+                onClearAllHistory={clearAllHistory}
+              />
+            </SidebarContent>
+          </Sidebar>
           
-          {/* Input area */}
-          <div className="border-t p-4">
-            <ChatInput onSend={sendMessage} disabled={isLoading} />
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col overflow-hidden relative">
+            <div className="absolute top-3 left-3 z-10">
+              <SidebarTrigger />
+            </div>
             
-            {/* Current model indicator */}
-            <div className="text-center mt-2">
-              <span className="text-xs text-muted-foreground">
-                Using {selectedModel === "aiti" ? "AITI" : "AITI Pro"}
-              </span>
+            {/* Chat messages */}
+            <div className="flex-1 overflow-hidden">
+              <ChatContainer 
+                messages={messages}
+                onClearChat={clearChat}
+                isLoading={isLoading}
+              />
+            </div>
+            
+            {/* Input area */}
+            <div className="border-t p-4">
+              <ChatInput onSend={sendMessage} disabled={isLoading} />
+              
+              {/* Current model indicator */}
+              <div className="text-center mt-2">
+                <span className="text-xs text-muted-foreground">
+                  Using {selectedModel === "aiti" ? "AITI Lite" : "AITI Coder"}
+                </span>
+              </div>
             </div>
           </div>
-        </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
