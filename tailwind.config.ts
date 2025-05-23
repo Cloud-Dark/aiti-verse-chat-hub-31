@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				aiti: {
+					light: '#8A2BE2',
+					DEFAULT: '#6A0DAD',
+					dark: '#4B0082',
+				},
+				'aiti-pro': {
+					light: '#00CED1',
+					DEFAULT: '#008B8B',
+					dark: '#006666',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,12 +95,31 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'gradient-x': {
+					'0%, 100%': {
+						'background-position': '0% 50%'
+					},
+					'50%': {
+						'background-position': '100% 50%'
+					}
+				},
+				blink: {
+					'0%': { opacity: '.2' },
+					'20%': { opacity: '1' },
+					'100%': { opacity: '.2' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'gradient-x': 'gradient-x 15s ease infinite',
+				'blink': 'blink 1.4s infinite both'
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'login-gradient': 'linear-gradient(to right, #8a2be2, #4b0082, #00ced1, #008b8b)',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
