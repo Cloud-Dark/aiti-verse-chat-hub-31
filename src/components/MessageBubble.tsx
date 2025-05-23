@@ -11,6 +11,21 @@ interface MessageBubbleProps {
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === "user";
   
+  const getModelDisplay = () => {
+    switch (message.model) {
+      case "aiti":
+        return { name: "AITI Lite", short: "AL", color: "from-primary to-rose-500" };
+      case "aiti-pro":
+        return { name: "AITI Coder", short: "AC", color: "from-red-500 to-red-600" };
+      case "ollama":
+        return { name: "Ollama", short: "OL", color: "from-green-500 to-green-600" };
+      default:
+        return { name: "AI", short: "AI", color: "from-gray-500 to-gray-600" };
+    }
+  };
+
+  const modelInfo = getModelDisplay();
+  
   return (
     <div
       className={cn(
@@ -22,12 +37,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       {!isUser && (
         <Avatar className={cn(
           "h-10 w-10 rounded-full border-2 shadow-lg transition-all duration-300 group-hover:scale-110",
-          message.model === "aiti-pro" 
-            ? "bg-gradient-to-tr from-red-500 to-red-600 border-red-300" 
-            : "bg-gradient-to-tr from-primary to-rose-500 border-primary/30"
+          `bg-gradient-to-tr ${modelInfo.color} border-opacity-30`
         )}>
           <span className="font-bold text-white text-sm">
-            {message.model === "aiti" ? "AL" : "AC"}
+            {modelInfo.short}
           </span>
         </Avatar>
       )}
@@ -36,10 +49,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         <div className="flex items-center gap-3">
           <span className={cn(
             "text-sm font-semibold transition-colors duration-300",
-            message.model === "aiti-pro" && !isUser ? "text-red-500" : 
-            message.model === "aiti" && !isUser ? "text-primary" : "text-foreground"
+            !isUser && message.model === "aiti-pro" ? "text-red-500" : 
+            !isUser && message.model === "aiti" ? "text-primary" :
+            !isUser && message.model === "ollama" ? "text-green-500" : "text-foreground"
           )}>
-            {isUser ? "You" : message.model === "aiti" ? "AITI Lite" : "AITI Coder"}
+            {isUser ? "You" : modelInfo.name}
           </span>
           <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
             {format(new Date(message.createdAt), "HH:mm")}
@@ -53,7 +67,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               ? "bg-gradient-to-tr from-primary to-rose-500 text-primary-foreground hover:scale-[1.02]" 
               : message.model === "aiti" 
                 ? "bg-muted/80 backdrop-blur-sm border border-border/50 hover:bg-muted" 
-                : "bg-muted/80 backdrop-blur-sm border-l-4 border-red-500 border-r border-t border-b border-border/50 hover:bg-muted",
+                : message.model === "aiti-pro"
+                  ? "bg-muted/80 backdrop-blur-sm border-l-4 border-red-500 border-r border-t border-b border-border/50 hover:bg-muted"
+                  : "bg-muted/80 backdrop-blur-sm border-l-4 border-green-500 border-r border-t border-b border-border/50 hover:bg-muted",
             "animate-fade-in"
           )}
         >

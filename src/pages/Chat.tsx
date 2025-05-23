@@ -42,6 +42,32 @@ const Chat = () => {
   if (!isAuthenticated) {
     return null;
   }
+
+  const getModelDisplayName = () => {
+    switch (selectedModel) {
+      case "aiti":
+        return "AITI Lite";
+      case "aiti-pro":
+        return "AITI Coder";
+      case "ollama":
+        return "Ollama";
+      default:
+        return "AI Model";
+    }
+  };
+
+  const getModelColor = () => {
+    switch (selectedModel) {
+      case "aiti":
+        return "bg-aiti-light";
+      case "aiti-pro":
+        return "bg-red-500";
+      case "ollama":
+        return "bg-green-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
   
   return (
     <SidebarProvider defaultOpen={false}>
@@ -95,11 +121,9 @@ const Chat = () => {
                 {/* Current model indicator */}
                 <div className="text-center mt-3">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 backdrop-blur-sm border border-border/30">
-                    <div className={`w-2 h-2 rounded-full animate-pulse ${
-                      selectedModel === "aiti" ? "bg-aiti-light" : "bg-red-500"
-                    }`} />
+                    <div className={`w-2 h-2 rounded-full animate-pulse ${getModelColor()}`} />
                     <span className="text-xs font-medium text-muted-foreground">
-                      {selectedModel === "aiti" ? "AITI Lite" : "AITI Coder"}
+                      {getModelDisplayName()}
                     </span>
                   </div>
                 </div>

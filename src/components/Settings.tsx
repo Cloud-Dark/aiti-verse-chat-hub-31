@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
 import { ModelType } from "@/context/ChatContext";
@@ -20,7 +22,7 @@ import {
   Sun,
   Trash2, 
   LogOut,
-  Share2
+  Server
 } from "lucide-react";
 
 interface SettingsProps {
@@ -31,9 +33,20 @@ interface SettingsProps {
 }
 
 export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: SettingsProps) {
-  const { selectedModel, setSelectedModel, clearChat, clearAllHistory, chainLength, setChainLength } = useChat();
+  const { 
+    selectedModel, 
+    setSelectedModel, 
+    clearChat, 
+    clearAllHistory, 
+    chainLength, 
+    setChainLength,
+    ollamaConfig,
+    setOllamaConfig
+  } = useChat();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  
+  const [tempOllamaConfig, setTempOllamaConfig] = useState(ollamaConfig);
   
   const handleLogout = () => {
     logout();
@@ -48,6 +61,10 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
   const handleClearAllHistory = () => {
     clearAllHistory();
     onOpenChange(false);
+  };
+
+  const handleSaveOllamaConfig = () => {
+    setOllamaConfig(tempOllamaConfig);
   };
 
   return (
@@ -84,7 +101,7 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
                   htmlFor="aiti-pro-model" 
                   className="flex items-center gap-2 text-sm cursor-pointer"
                 >
-                  <div className={`w-3 h-3 rounded-full ${selectedModel === "aiti-pro" ? "bg-primary" : "bg-gray-300"}`}></div>
+                  <div className={`w-3 h-3 rounded-full ${selectedModel === "aiti-pro" ? "bg-red-500" : "bg-gray-300"}`}></div>
                   AITI Coder
                 </label>
                 <Switch 
@@ -93,11 +110,67 @@ export function Settings({ open, onOpenChange, onToggleTheme, isDarkTheme }: Set
                   onCheckedChange={() => setSelectedModel("aiti-pro")} 
                 />
               </div>
+
+              <div className="flex items-center justify-between">
+                <label 
+                  htmlFor="ollama-model" 
+                  className="flex items-center gap-2 text-sm cursor-pointer"
+                >
+                  <div className={`w-3 h-3 rounded-full ${selectedModel === "ollama" ? "bg-green-500" : "bg-gray-300"}`}></div>
+                  Ollama
+                </label>
+                <Switch 
+                  id="ollama-model" 
+                  checked={selectedModel === "ollama"} 
+                  onCheckedChange={() => setSelectedModel("ollama")} 
+                />
+              </div>
             </div>
             
             <div className="text-xs text-muted-foreground mt-2">
               <p><strong>AITI Lite:</strong> Fast responses for everyday questions</p>
               <p><strong>AITI Coder:</strong> Advanced programming and technical capabilities</p>
+              <p><strong>Ollama:</strong> Local AI models running on your machine</p>
+            </div>
+          </div>
+
+          {/* Ollama Configuration */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Server className="h-4 w-4" />
+              <h3 className="text-sm font-medium">Ollama Configuration</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="ollama-url" className="text-xs">Base URL</Label>
+                <Input
+                  id="ollama-url"
+                  placeholder="http://localhost:11434"
+                  value={tempOllamaConfig.baseUrl}
+                  onChange={(e) => setTempOllamaConfig(prev => ({ ...prev, baseUrl: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ollama-model-name" className="text-xs">Model Name</Label>
+                <Input
+                  id="ollama-model-name"
+                  placeholder="llama2"
+                  value={tempOllamaConfig.model}
+                  onChange={(e) => setTempOllamaConfig(prev => ({ ...prev, model: e.target.value }))}
+                />
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSaveOllamaConfig}
+                className="w-full"
+              >
+                Save Ollama Config
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              <p>Make sure Ollama is running on your system and the model is downloaded.</p>
+              <p>Example: <code>ollama pull llama2</code></p>
             </div>
           </div>
           

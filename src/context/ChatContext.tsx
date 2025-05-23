@@ -1,8 +1,7 @@
-
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-export type ModelType = "aiti" | "aiti-pro";
+export type ModelType = "aiti" | "aiti-pro" | "ollama";
 
 export interface Message {
   id: string;
@@ -20,6 +19,11 @@ interface Conversation {
   createdAt: Date;
 }
 
+interface OllamaConfig {
+  baseUrl: string;
+  model: string;
+}
+
 interface ChatContextType {
   messages: Message[];
   conversations: Conversation[];
@@ -27,8 +31,10 @@ interface ChatContextType {
   isLoading: boolean;
   activeConversationId: string | null;
   chainLength: number;
+  ollamaConfig: OllamaConfig;
   setChainLength: (length: number) => void;
   setSelectedModel: (model: ModelType) => void;
+  setOllamaConfig: (config: OllamaConfig) => void;
   sendMessage: (content: string) => Promise<void>;
   clearChat: () => void;
   selectConversation: (id: string) => void;
@@ -46,6 +52,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [chainLength, setChainLength] = useState<number>(3);
+  const [ollamaConfig, setOllamaConfig] = useState<OllamaConfig>({
+    baseUrl: "http://localhost:11434",
+    model: "llama2"
+  });
   const { toast } = useToast();
 
   // Helper to create a new conversation
@@ -60,6 +70,33 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setConversations(prev => [newConversation, ...prev]);
     setActiveConversationId(newConversation.id);
     return newConversation.id;
+  };
+
+  // Function to call Ollama API
+  const callOllamaAPI = async (content: string): Promise<string> => {
+    try {
+      const response = await fetch(`${ollamaConfig.baseUrl}/api/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: ollamaConfig.model,
+          prompt: content,
+          stream: false
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ollama API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.response || "Sorry, I couldn't generate a response.";
+    } catch (error) {
+      console.error('Ollama API error:', error);
+      throw new Error('Failed to connect to Ollama. Please check your configuration and ensure Ollama is running.');
+    }
   };
 
   // Function to send a message
@@ -113,26 +150,63 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     
     setIsLoading(true);
     
-    // Simulate streaming response
-    const response = selectedModel === "aiti" 
-      ? `This is a response from the basic Aiti model. I'm here to help answer your questions about "${content}". However, I'm limited compared to my pro version.`
-      : `This is an advanced response from Aiti Pro model. I can provide more detailed and nuanced information about "${content}". With Aiti Pro, you get enhanced capabilities and more accurate responses based on the latest AI research.`;
-    
-    let displayedResponse = "";
-    
-    for (let i = 0; i < response.length; i++) {
-      displayedResponse += response[i];
+    try {
+      let response: string;
       
-      // Update the AI message with the current part of the response
-      setMessages((prev) => 
-        prev.map((msg) => 
+      if (selectedModel === "ollama") {
+        response = await callOllamaAPI(content);
+      } else if (selectedModel === "aiti") {
+        response = `This is a response from the basic AITI Lite model. I'm here to help answer your questions about "${content}". However, I'm limited compared to my pro version.`;
+      } else {
+        // aiti-pro
+        response = `This is an advanced response from AITI Coder model. I can provide more detailed and nuanced information about "${content}". With AITI Coder, you get enhanced capabilities and more accurate responses for coding and technical tasks.`;
+      }
+      
+      // Simulate streaming response
+      let displayedResponse = "";
+      
+      for (let i = 0; i < response.length; i++) {
+        displayedResponse += response[i];
+        
+        // Update the AI message with the current part of the response
+        setMessages((prev) => 
+          prev.map((msg) => 
+            msg.id === aiMessageId 
+              ? { ...msg, content: displayedResponse } 
+              : msg
+          )
+        );
+        
+        // Also update in the conversations
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === convId 
+              ? { 
+                  ...conv, 
+                  messages: conv.messages.map(msg => 
+                    msg.id === aiMessageId 
+                      ? { ...msg, content: displayedResponse } 
+                      : msg
+                  ) 
+                } 
+              : conv
+          )
+        );
+        
+        // Wait a small amount of time to simulate typing
+        await new Promise((resolve) => setTimeout(resolve, selectedModel === "ollama" ? 20 : 30));
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An error occurred";
+      
+      setMessages(prev => 
+        prev.map(msg => 
           msg.id === aiMessageId 
-            ? { ...msg, content: displayedResponse } 
+            ? { ...msg, content: errorMessage, isStreaming: false } 
             : msg
         )
       );
       
-      // Also update in the conversations
       setConversations(prev => 
         prev.map(conv => 
           conv.id === convId 
@@ -140,7 +214,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 ...conv, 
                 messages: conv.messages.map(msg => 
                   msg.id === aiMessageId 
-                    ? { ...msg, content: displayedResponse } 
+                    ? { ...msg, content: errorMessage, isStreaming: false } 
                     : msg
                 ) 
               } 
@@ -148,8 +222,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         )
       );
       
-      // Wait a small amount of time to simulate typing
-      await new Promise((resolve) => setTimeout(resolve, 30));
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      
+      setIsLoading(false);
+      return;
     }
     
     // Complete the AI message
@@ -215,7 +295,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     if (!conversation) return;
     
     const text = conversation.messages
-      .map(m => `${m.role === 'user' ? 'You' : m.model === 'aiti' ? 'AITI Lite' : 'AITI Coder'}: ${m.content}`)
+      .map(m => `${m.role === 'user' ? 'You' : m.model === 'aiti' ? 'AITI Lite' : m.model === 'ollama' ? 'Ollama' : 'AITI Coder'}: ${m.content}`)
       .join('\n\n');
     
     navigator.clipboard.writeText(text).then(() => {
@@ -235,8 +315,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         isLoading,
         activeConversationId,
         chainLength,
+        ollamaConfig,
         setChainLength,
         setSelectedModel, 
+        setOllamaConfig,
         sendMessage,
         clearChat,
         selectConversation,
